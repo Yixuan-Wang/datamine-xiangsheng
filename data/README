@@ -1,0 +1,3 @@
+Put data in this directory.
+
+{train, valid, test}.json, {train, valid, test}_label.json

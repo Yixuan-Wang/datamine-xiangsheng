@@ -46,31 +46,34 @@ def train(
 
     timestamp = datetime.now().strftime("%m%dT%H%M%S")
 
+    # Load pretrained BERT from Huggingface Hub
     tokenizer, bert = tune.get_pretrained()
     model = models.ModelMultipleChoice(cast(models.BertModel, bert))
 
+    # A pretrain step on a next sentence prediction task
     if pretrain:
         dataloader_pretrain = preprocess.get_nsp_dataloader(tokenizer=tokenizer)
         model = tune.pretrain_on_nsp(
             model, dataloader=dataloader_pretrain, device=torch.device(0)
         )
 
-        dataloader_train = preprocess.get_dataloader("train", tokenizer=tokenizer)
-        dataloader_valid = preprocess.get_dataloader("valid", tokenizer=tokenizer)
+    dataloader_train = preprocess.get_dataloader("train", tokenizer=tokenizer)
+    dataloader_valid = preprocess.get_dataloader("valid", tokenizer=tokenizer)
 
-        model = tune.train(
-            model=model,
-            dataloader=dataloader_train,
-            device=torch.device(0),
-            dataloader_eval=dataloader_valid,
+    # Train (Finetune)
+    model = tune.train(
+        model=model,
+        dataloader=dataloader_train,
+        device=torch.device(0),
+        dataloader_eval=dataloader_valid,
+    )
+
+    timestamp_to = datetime.now().strftime("%m%dT%H%M%S")
+
+    if save_model is not None:
+        torch.save(
+            model, f"models/model.{save_model}.{timestamp}.{timestamp_to}.pt"
         )
-
-        timestamp_to = datetime.now().strftime("%m%dT%H%M%S")
-
-        if save_model is not None:
-            torch.save(
-                model, f"models/model.{save_model}.{timestamp}.{timestamp_to}.pt"
-            )
 
 
 @app.command(help="Evaluate model with `valid` dataset.")
@@ -83,8 +86,11 @@ def eval(
 ):
     print(f"[blue bold]eval: [underline]{name}")
     PARAMS.VALID_SIZE = valid_size
+
     tokenizer, model = tune.get_pretrained(name)
     dataloader = preprocess.get_dataloader("valid", tokenizer=tokenizer)
+    
+    # Evaluate the model
     model = tune.eval(model, dataloader=dataloader, device=torch.device(0))
 
 
@@ -93,6 +99,7 @@ def test(name: str):
     print(f"[green bold]test: [underline]{name}")
     tokenizer, model = tune.get_pretrained(name)
     dataloader = preprocess.get_test_dataloader(tokenizer=tokenizer)
+
     with open("data/result.json", "w") as buf:
         predict.predict(
             model, buffer=buf, dataloader=dataloader, device=torch.device(0)
@@ -100,6 +107,9 @@ def test(name: str):
 
 
 if __name__ == "__main__":
+    # Suppress `huggingface` warnings
     t_logging.set_verbosity_error()
     logging.getLogger("transformers.tokenization_utils").setLevel(logging.ERROR)
+
+    # CLI entrance
     app()

@@ -10,7 +10,6 @@ import preprocess
 import tune
 from params import PARAMS
 import models
-import utils.cli
 import logging
 
 
@@ -34,10 +33,10 @@ def train(
         9, help="How many BERT layers are freezed during (pre)training."
     ),
     data_size: int = typer.Option(1500, help="Size of training data."),
-    learning_rate: int = typer.Option(
-        1500, "--lr", help="Learning rate of training step."
+    learning_rate: float = typer.Option(
+        5e-5, "--lr", help="Learning rate of training step."
     ),
-    batch_size: int = typer.Option(16, "Batch size of training step."),
+    batch_size: int = typer.Option(16, help="Batch size of training step."),
 ):
     PARAMS.BATCH_SIZE = batch_size
     PARAMS.CONTEXT_LENGTH = context

@@ -10,7 +10,7 @@ from torch.utils.data import DataLoader
 
 import preprocess
 import tune
-from models import ModelMultipleChoice, MultipleChoiceModelOutput
+from models import MultipleChoiceModelOutput
 from params import PARAMS
 from utils.stub import track
 from utils.torchtools import get_device_of_module, on_device

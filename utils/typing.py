@@ -12,8 +12,10 @@ Ts = TypeVarTuple("Ts")
 Tokenizer = Union[PreTrainedTokenizer, PreTrainedTokenizerFast]
 Model = torch.nn.Module
 
+
 def typing_identity(call: Callable) -> Callable[[Unpack[Ts]], tuple[Unpack[Ts]]]:
     return call
+
 
 __all__ = [
     "Model",

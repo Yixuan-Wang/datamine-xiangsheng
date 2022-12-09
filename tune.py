@@ -116,7 +116,7 @@ def pretrain_on_nsp(
         model.parameters(), lr=PARAMS.PRETRAIN_NSP_LEARNING_RATE
     )
 
-    count_epoch = 1
+    count_epoch = 3
     num_training_steps = count_epoch * len(dataloader)
     lr_scheduler = get_scheduler(
         "linear",

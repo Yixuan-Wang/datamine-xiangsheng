@@ -24,7 +24,7 @@ def predict_one(model: Model):
         output: MultipleChoiceModelOutput = model(
             **{k: v.to(device) for k, v in batch.items()}
         )
-        result = output.logits.argmax(-1)
+        result: list[int] = output.logits.argmax(-1).tolist()
         return result
 
     return inner
@@ -46,22 +46,25 @@ def predict(
         count_batch = len(dataloader)
 
         task = progress.add_task("Predicting...", total=count_batch)
-        out = pd.DataFrame(
-            itertools.chain.from_iterable(
-                map(
-                    predict_one(model),
-                    track(
-                        hook_post=lambda idx, item: progress.update(
-                            task,
-                            description=f"Predict {idx+1} of {count_batch}.",
-                            advance=1,
-                        ),
-                    )(dataloader),
-                )
-            ),
-            columns=["pos_idx"],
+        out = itertools.chain.from_iterable(
+            map(
+                predict_one(model),
+                track(
+                    hook_post=lambda idx, item: progress.update(
+                        task,
+                        description=f"Predict {idx+1} of {count_batch}.",
+                        advance=1,
+                    ),
+                )(dataloader),
+            )
         )
+        # columns=["pos_idx"],
 
-        out.to_json(buffer, orient="records")
+        buffer.write("[")
+        for idx, each in enumerate(out):
+            if idx != 0:
+                buffer.write(",")
+            buffer.write(f'{{"pos_idx":{each}}}')
+        buffer.write("]")
 
     return model

@@ -1,3 +1,6 @@
+# The model architecture is based on huggingface's code
+# We reimplement the model to untangle some inheritance to make the pretrain step easier
+
 from typing import Optional
 
 import torch
@@ -33,10 +36,10 @@ class ModelMultipleChoice(torch.nn.Module):
         labels: Optional[torch.Tensor] = None,
     ) -> MultipleChoiceModelOutput:
 
-        # ? input shape: [n, c, b]
-        # ?   n: input tensor length
-        # ?   c: number of choices
-        # ?   b: batch size
+        # input shape: [n, c, b]
+        #   n: input tensor length
+        #   c: number of choices
+        #   b: batch size
 
         num_choices = input_ids.shape[1]
 

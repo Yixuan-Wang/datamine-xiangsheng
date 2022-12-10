@@ -41,11 +41,12 @@ def gen_nsp_true_datum(tokenizer: Tokenizer):
         # question_segment = "[SEP]".join(question.split("|")[-PARAMS.CONTEXT_LENGTH :])
         # return tokenizer(question_segment, choices[answer]) | {"labels": 0}
         yield from (
-            tokenizer("[SEP]".join(sents[:-1]), sents[-1]) | { "labels": 0 }
-            for sents
-            in window(
-                itertools.chain(question.split("|")[-PARAMS.CONTEXT_LENGTH-2:], choices[answer]),
-                PARAMS.CONTEXT_LENGTH + 1
+            tokenizer("[SEP]".join(sents[:-1]), sents[-1]) | {"labels": 0}
+            for sents in window(
+                itertools.chain(
+                    question.split("|")[-PARAMS.CONTEXT_LENGTH - 2 :], choices[answer]
+                ),
+                PARAMS.CONTEXT_LENGTH + 1,
             )
         )
 

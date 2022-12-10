@@ -71,9 +71,7 @@ def train(
     timestamp_to = datetime.now().strftime("%m%dT%H%M%S")
 
     if save_model is not None:
-        torch.save(
-            model, f"models/model.{save_model}.{timestamp}.{timestamp_to}.pt"
-        )
+        torch.save(model, f"models/model.{save_model}.{timestamp}.{timestamp_to}.pt")
 
 
 @app.command(help="Evaluate model with `valid` dataset.")
@@ -89,7 +87,7 @@ def eval(
 
     tokenizer, model = tune.get_pretrained(name)
     dataloader = preprocess.get_dataloader("valid", tokenizer=tokenizer)
-    
+
     # Evaluate the model
     model = tune.eval(model, dataloader=dataloader, device=torch.device(0))
 
@@ -100,7 +98,7 @@ def test(name: str):
     tokenizer, model = tune.get_pretrained(name)
     dataloader = preprocess.get_test_dataloader(tokenizer=tokenizer)
 
-    with open("data/result.json", "w") as buf:
+    with open("data/test_label.json", "w") as buf:
         predict.predict(
             model, buffer=buf, dataloader=dataloader, device=torch.device(0)
         )
